@@ -567,6 +567,7 @@
       font-size: 13px;
       color: #475569;
       margin-top: 6px;
+      white-space: pre-line;
     }
 
     .product-footer {
@@ -1482,7 +1483,7 @@
         <div class="modal-header-dark">
           <div>
             <h3 class="font-display" style="font-size: 18px; color: #F5C542;">Admin MAYOCHA</h3>
-            <p style="font-size: 11px; color: #94A3B8;">Kelola foto menu, stok, harga, QRIS asli & pesanan</p>
+            <p style="font-size: 11px; color: #94A3B8;">Kelola deskripsi, foto menu, stok, harga, QRIS & pesanan</p>
           </div>
           <div style="display: flex; gap: 6px;">
             <button type="button" onclick="logoutAdmin()" style="padding: 6px 10px; border-radius: 10px; border: none; background: rgba(239,68,68,0.2); color: #FCA5A5; font-size: 11px; font-weight: 700; cursor: pointer;">Logout</button>
@@ -1507,8 +1508,8 @@
             <div id="admin-qris-preview" style="margin-top: 10px;"></div>
           </div>
 
-          <h4 class="font-display" style="font-size: 16px; color: #0F172A; margin-bottom: 10px;">Foto Produk, Harga & Stok</h4>
-          <div id="admin-products-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px;"></div>
+          <h4 class="font-display" style="font-size: 16px; color: #0F172A; margin-bottom: 10px;">Deskripsi, Foto, Harga & Stok Produk</h4>
+          <div id="admin-products-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 20px;"></div>
 
           <h4 class="font-display" style="font-size: 16px; color: #0F172A; margin-bottom: 10px;">Riwayat Pesanan</h4>
           <div id="admin-orders-list"></div>
@@ -1633,18 +1634,18 @@
       }
     ];
 
-    let products = JSON.parse(localStorage.getItem('mayocha_products_v5')) || DEFAULT_PRODUCTS;
-    let cart = JSON.parse(localStorage.getItem('mayocha_cart_v5')) || {};
-    let orders = JSON.parse(localStorage.getItem('mayocha_orders_v5')) || [];
-    let qrisImage = localStorage.getItem('mayocha_qris_v5') || null;
+    let products = JSON.parse(localStorage.getItem('mayocha_products_v6')) || DEFAULT_PRODUCTS;
+    let cart = JSON.parse(localStorage.getItem('mayocha_cart_v6')) || {};
+    let orders = JSON.parse(localStorage.getItem('mayocha_orders_v6')) || [];
+    let qrisImage = localStorage.getItem('mayocha_qris_v6') || null;
     let isAdminLoggedIn = false;
 
     function saveState() {
-      localStorage.setItem('mayocha_products_v5', JSON.stringify(products));
-      localStorage.setItem('mayocha_cart_v5', JSON.stringify(cart));
-      localStorage.setItem('mayocha_orders_v5', JSON.stringify(orders));
+      localStorage.setItem('mayocha_products_v6', JSON.stringify(products));
+      localStorage.setItem('mayocha_cart_v6', JSON.stringify(cart));
+      localStorage.setItem('mayocha_orders_v6', JSON.stringify(orders));
       if (qrisImage) {
-        localStorage.setItem('mayocha_qris_v5', qrisImage);
+        localStorage.setItem('mayocha_qris_v6', qrisImage);
       }
     }
 
@@ -2032,9 +2033,14 @@
     function updateProductField(productId, field, value) {
       const prod = products.find(p => p.id === productId);
       if (!prod) return;
-      prod[field] = Math.max(0, Number(value) || 0);
+      if (field === 'description') {
+        prod.description = String(value);
+      } else {
+        prod[field] = Math.max(0, Number(value) || 0);
+      }
       saveState();
-      renderAll();
+      renderProducts();
+      renderCart();
     }
 
     function updateOrderStatus(index, newStatus) {
@@ -2063,6 +2069,8 @@
         <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 14px; padding: 12px;">
           <div style="font-weight: 800; font-size: 13px; margin-bottom: 8px;">${p.name}</div>
           <div class="admin-prod-thumb">${getProductGraphic(p)}</div>
+          <label style="font-size: 11px; font-weight: 700; color: #64748B;">Deskripsi</label>
+          <textarea rows="3" onchange="updateProductField('${p.id}', 'description', this.value)" class="form-control" style="margin-bottom: 8px; padding: 7px 10px; font-size: 12px;">${p.description}</textarea>
           <label style="font-size: 11px; font-weight: 700; color: #64748B;">Harga</label>
           <input type="number" value="${p.price}" onchange="updateProductField('${p.id}', 'price', this.value)" class="form-control" style="margin-bottom: 8px; padding: 7px 10px;" />
           <label style="font-size: 11px; font-weight: 700; color: #64748B;">Stok</label>
